@@ -2,25 +2,1211 @@
 <html>
 
 <head>
-  <title>Clicker game</title>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <meta name="description" content="Clicker.exe — a retro CRT clicker game. Click through the lag, upgrade your system, and survive glitches.">
+  <meta name="theme-color" content="#101810">
+  <title>Clicker.EXE</title>
+
+  <style>
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+
+      font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+      background:
+        radial-gradient(
+          circle at top,
+          #252a35,
+          #101218 70%
+        );
+
+      color: white;
+    }
+
+    #content {
+      min-height: 100vh;
+    }
+
+    .clickerWindow {
+      width: 100%;
+      max-width: 900px;
+
+      margin: 0 auto;
+      padding: 40px 20px 60px;
+
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0 0 25px;
+
+      font-size: 42px;
+      letter-spacing: 4px;
+
+      text-shadow:
+        0 3px 10px rgba(0, 0, 0, 0.5);
+    }
+    /* =========================================================
+      SETTINGS APP
+      ========================================================= */
+
+    .settingsButton {
+      position: absolute;
+      top: 18px;
+      right: 300px;
+      width: 42px;
+      height: 42px;
+      border: 2px solid #777;
+      border-radius: 8px;
+      background: #c9c3b6;
+      color: #222;
+      font-size: 23px;
+      cursor: pointer;
+      z-index: 20;
+    }
+
+    .settingsButton:hover {
+      background: #ddd7ca;
+    }
+
+    .settingsOverlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .settingsWindow {
+      width: min(700px, 90vw);
+      max-height: 88vh;
+      padding: 30px;
+      box-sizing: border-box;
+      background: #c9c3b6;
+      border: 6px solid #8c877d;
+      border-radius: 14px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7);
+      color: #222;
+      position: relative;
+      overflow: auto;
+    }
+
+    .settingsWindow h2 {
+      margin-top: 0;
+      padding-bottom: 15px;
+      padding-right: 45px;
+      border-bottom: 2px solid #888;
+      font-family: monospace;
+      letter-spacing: 3px;
+    }
+
+    .settingsClose {
+      position: absolute;
+      top: 12px;
+      right: 14px;
+      width: 35px;
+      height: 35px;
+      border: 2px solid #777;
+      border-radius: 6px;
+      background: #b4aea2;
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    .settingsClose:hover {
+      background: #d8d2c6;
+    }
+
+
+    /* =========================================================
+      SETTINGS TABS
+      ========================================================= */
+
+    .settingsTabs {
+      display: flex;
+      gap: 10px;
+      margin: 20px 0;
+    }
+
+    .settingsTabButton {
+      flex: 1;
+      padding: 12px 14px;
+      border: 2px solid #777;
+      border-radius: 6px;
+      background: #aaa59a;
+      color: #222;
+      font-family: monospace;
+      font-weight: bold;
+      letter-spacing: 1px;
+      cursor: pointer;
+    }
+
+    .settingsTabButton:hover {
+      background: #c0baae;
+    }
+
+    .settingsTabActive {
+      background: #20201c;
+      color: #8ee091;
+      border-color: #666;
+    }
+
+
+    /* =========================================================
+      SETTINGS PANELS
+      ========================================================= */
+
+    .settingsPanel {
+      margin-top: 5px;
+    }
+
+    .settingsPanelHeader {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 20px 0 8px;
+      font-family: monospace;
+      font-weight: bold;
+      letter-spacing: 2px;
+      font-size: 16px;
+    }
+
+    .settingsPanelNote {
+      margin-bottom: 15px;
+      padding: 10px 12px;
+      background: #b4aea2;
+      border: 1px solid #8c877d;
+      border-radius: 5px;
+      line-height: 1.4;
+      font-size: 13px;
+    }
+
+
+    /* =========================================================
+      ACHIEVEMENTS
+      ========================================================= */
+
+    .achievementList {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .achievementCard {
+      padding: 14px;
+      border: 2px solid #777;
+      border-radius: 7px;
+      background: #aaa59a;
+    }
+
+    .achievementUnlocked {
+      background: #22251f;
+      color: #8ee091;
+    }
+
+    .achievementLocked {
+      opacity: 0.65;
+    }
+
+    .achievementStatus {
+      font-family: monospace;
+      font-size: 11px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      margin-bottom: 7px;
+    }
+
+    .achievementTitle {
+      font-family: monospace;
+      font-weight: bold;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+
+    .achievementDescription {
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+
+    /* =========================================================
+      POWER-UP POINTS
+      ========================================================= */
+
+    .powerUpPointsBox {
+      padding: 18px;
+      margin-bottom: 18px;
+      background: #20201c;
+      color: #8ee091;
+      border: 3px solid #777;
+      border-radius: 8px;
+      text-align: center;
+      font-family: monospace;
+    }
+
+    .powerUpPointsLabel {
+      font-size: 13px;
+      letter-spacing: 2px;
+    }
+
+    .powerUpPointsValue {
+      margin: 8px 0;
+      font-size: 34px;
+      font-weight: bold;
+    }
+
+    .powerUpActiveText {
+      font-size: 12px;
+      opacity: 0.85;
+    }
+
+
+    /* =========================================================
+      REPEATABLE POWER-UP TASKS
+      ========================================================= */
+
+    .powerUpTaskList {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .powerUpTaskCard {
+      padding: 14px;
+      border: 2px solid #777;
+      border-radius: 7px;
+      background: #aaa59a;
+    }
+
+    .powerUpTaskTop {
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
+    }
+
+    .powerUpTaskTitle {
+      font-family: monospace;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    .powerUpTaskDescription {
+      margin-top: 5px;
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .powerUpTaskReward {
+      flex-shrink: 0;
+      font-family: monospace;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .powerUpTaskProgress {
+      margin-top: 12px;
+      padding: 8px 10px;
+      background: #20201c;
+      color: #8ee091;
+      border-radius: 4px;
+      font-family: monospace;
+      text-align: center;
+    }
+
+    .powerUpTaskMeta {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 7px;
+      font-family: monospace;
+      font-size: 10px;
+      opacity: 0.8;
+    }
+
+    .powerUpClaimButton {
+      width: 100%;
+      margin-top: 10px;
+      padding: 9px;
+      border: 2px solid #666;
+      border-radius: 5px;
+      background: #c9c3b6;
+      color: #222;
+      font-family: monospace;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .powerUpClaimButton:hover:not(:disabled) {
+      background: #ddd7ca;
+    }
+
+    .powerUpClaimButton:disabled {
+      opacity: 0.45;
+      cursor: default;
+    }
+
+
+    /* =========================================================
+      POWER-UPS
+      ========================================================= */
+
+    .powerUpList {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .powerUpCard {
+      padding: 15px;
+      border: 2px solid #777;
+      border-radius: 7px;
+      background: #aaa59a;
+    }
+
+    .powerUpTitle {
+      font-family: monospace;
+      font-weight: bold;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+
+    .powerUpDescription {
+      font-size: 13px;
+      line-height: 1.35;
+      min-height: 36px;
+    }
+
+    .powerUpOwned {
+      margin-top: 10px;
+      font-family: monospace;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .powerUpActivateButton {
+      width: 100%;
+      margin-top: 10px;
+      padding: 10px;
+      border: 2px solid #666;
+      border-radius: 5px;
+      background: #20201c;
+      color: #8ee091;
+      font-family: monospace;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .powerUpActivateButton:hover:not(:disabled) {
+      background: #30302a;
+    }
+
+    .powerUpActivateButton:disabled {
+      opacity: 0.45;
+      cursor: default;
+    }
+
+
+    /* =========================================================
+      SMALL-SCREEN LAYOUT
+      ========================================================= */
+
+    @media (max-width: 700px) {
+
+      .settingsWindow {
+        width: 95vw;
+        padding: 20px;
+      }
+
+      .achievementList,
+      .powerUpList {
+        grid-template-columns: 1fr;
+      }
+
+      .powerUpTaskTop,
+      .powerUpTaskMeta {
+        flex-direction: column;
+      }
+
+    }
+    /* --------------------------------------------------
+       Statistics
+    -------------------------------------------------- */
+
+    .stats {
+      margin-bottom: 30px;
+    }
+
+    .clickCount {
+      font-size: 64px;
+      font-weight: bold;
+
+      line-height: 1;
+
+      text-shadow:
+        0 4px 15px rgba(0, 0, 0, 0.5);
+    }
+
+    .clickLabel {
+      margin-top: 8px;
+
+      font-size: 14px;
+      letter-spacing: 5px;
+
+      opacity: 0.65;
+    }
+
+    .cps {
+      margin-top: 12px;
+
+      font-size: 18px;
+
+      opacity: 0.8;
+    }
+
+    /* --------------------------------------------------
+       Click area
+    -------------------------------------------------- */
+
+    .clickArea {
+      height: 310px;
+
+      margin-top: 35px;
+      margin-bottom: 20px;
+
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+
+      position: relative;
+    }
+
+.mainClickButton {
+  width: 180px;
+  height: 230px;
+
+  padding: 0;
+
+  border: 4px solid #777;
+  border-radius: 48% 48% 42% 42%;
+
+  background:
+    linear-gradient(
+      to right,
+      #d4cec0 0%,
+      #c4bdaf 48%,
+      #aaa396 100%
+    );
+
+  box-shadow:
+    0 8px 0 #666,
+    0 12px 20px rgba(0, 0, 0, 0.45);
+
+  color: #222;
+
+  font-size: 64px;
+
+  cursor: pointer;
+
+  position: relative;
+
+  transition:
+    transform 0.06s ease,
+    box-shadow 0.06s ease;
+
+  outline: none;
+}
+
+
+/* Split between left and right buttons */
+
+.mainClickButton::before {
+  content: "";
+
+  position: absolute;
+
+  top: 5px;
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  width: 3px;
+  height: 105px;
+
+  background: #888;
+
+  border-radius: 2px;
+}
+
+
+/* Scroll wheel */
+
+.mainClickButton::after {
+  content: "";
+
+  position: absolute;
+
+  top: 24px;
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  width: 21px;
+  height: 38px;
+
+  background: #777;
+
+  border: 2px solid #666;
+
+  border-radius: 10px;
+
+  box-shadow:
+    inset 0 2px 2px rgba(255, 255, 255, 0.4),
+    0 2px 3px rgba(0, 0, 0, 0.3);
+}
+
+
+/* Mouse press */
+
+.mainClickButton:active {
+  transform: translateY(7px);
+
+  box-shadow:
+    0 1px 0 #666,
+    0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+
+
+
+
+    /* Pressed state */
+
+    .mainClickButton:active {
+      transform: translateY(7px);
+
+      box-shadow:
+        0 1px 0 #666,
+        0 4px 8px rgba(0, 0, 0, 0.4);
+    }
+
+    .clickHint {
+      margin-top: 20px;
+
+      opacity: 0.5;
+    }
+
+    /* --------------------------------------------------
+       Shop
+    -------------------------------------------------- */
+
+    .shop {
+
+      padding: 25px;
+
+      border-radius: 18px;
+
+      background:
+        rgba(255, 255, 255, 0.06);
+
+      box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.25);
+    }
+
+    .shop h2 {
+
+      margin-top: 0;
+      margin-bottom: 20px;
+
+      font-size: 20px;
+      letter-spacing: 3px;
+    }
+
+    .shopList {
+
+      display: grid;
+
+      grid-template-columns:
+        repeat(auto-fit, minmax(220px, 1fr));
+
+      gap: 12px;
+    }
+
+    .upgradeCard {
+      width: 100%;
+    }
+
+    .upgradeButton {
+
+      width: 100%;
+
+      padding: 18px;
+
+      border: 1px solid
+        rgba(255, 255, 255, 0.1);
+
+      border-radius: 12px;
+
+      background:
+        rgba(255, 255, 255, 0.07);
+
+      color: white;
+
+      text-align: left;
+
+      cursor: pointer;
+
+      transition:
+        transform 0.1s,
+        background 0.1s;
+    }
+
+    .upgradeButton:hover:not(:disabled) {
+
+      transform: translateY(-2px);
+
+      background:
+        rgba(255, 255, 255, 0.12);
+    }
+
+    .upgradeButton:disabled {
+
+      cursor: not-allowed;
+
+      opacity: 0.35;
+    }
+
+    .upgradeTitle {
+
+      font-size: 18px;
+      font-weight: bold;
+
+      margin-bottom: 8px;
+    }
+
+    .upgradeInfo {
+      font-size: 14px;
+      opacity: 0.8;
+    }
+
+    .upgradeOwned {
+      margin-top: 8px;
+      font-size: 13px;
+    }
+
+    .upgradeProduction {
+
+      margin-top: 4px;
+
+      font-size: 12px;
+
+      opacity: 0.55;
+    }
+
+    .upgradeCost {
+
+      margin-top: 12px;
+
+      font-size: 15px;
+
+      font-weight: bold;
+    }
+    /* =========================================================
+      SYSTEM LOADING BAR
+      ========================================================= */
+
+    .loadingSection {
+      width: 80%;
+      max-width: 650px;
+      margin: 25px auto 0;
+    }
+
+    .loadingHeader {
+      display: flex;
+      justify-content: space-between;
+
+      margin-bottom: 8px;
+
+      font-size: 18px;
+      font-weight: bold;
+      letter-spacing: 2px;
+    }
+
+    .loadingBar {
+      width: 100%;
+      height: 28px;
+
+      background: #111;
+
+      border: 3px solid #777;
+
+      border-radius: 4px;
+
+      overflow: hidden;
+
+      box-shadow:
+        inset 0 0 8px rgba(0, 0, 0, 0.8);
+    }
+
+    .loadingFill {
+      height: 100%;
+
+      background:
+        repeating-linear-gradient(
+          90deg,
+          #59a85b 0px,
+          #59a85b 14px,
+          #78c77b 14px,
+          #78c77b 28px
+        );
+
+      position: relative;
+
+      transition: width 0.08s linear;
+
+      overflow: hidden;
+    }
+
+
+    /* Moving light across the loading bar */
+
+    .loadingFill::after {
+      content: "";
+
+      position: absolute;
+
+      top: 0;
+      left: -40%;
+
+      width: 40%;
+      height: 100%;
+
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.45),
+        transparent
+      );
+
+      animation: loadingSweep 1.2s linear infinite;
+    }
+
+
+    @keyframes loadingSweep {
+
+      from {
+        transform: translateX(0);
+      }
+
+      to {
+        transform: translateX(350%);
+      }
+
+    }
+
+
+    .loadingText {
+      margin-top: 7px;
+
+      text-align: center;
+
+      font-size: 15px;
+
+      font-family: monospace;
+
+      opacity: 0.8;
+    }
+    /* =========================================================
+      RETRO CRT MONITOR
+      ========================================================= */
+
+    html,
+    body {
+      min-height: 100%;
+    }
+
+
+    body {
+      margin: 0;
+      padding: 45px 20px;
+
+      background:
+        radial-gradient(
+          ellipse at center,
+          #45433d 0%,
+          #24231f 55%,
+          #11110f 100%
+        );
+
+      box-sizing: border-box;
+    }
+
+
+    /* CRT cabinet / screen */
+
+    .clickerWindow {
+      width: min(900px, 90vw);
+
+      margin: 0 auto;
+
+      padding: 35px 40px 45px;
+
+      box-sizing: border-box;
+
+      background:
+        radial-gradient(
+          ellipse at center,
+          #102010 0%,
+          #071007 65%,
+          #040804 100%
+        );
+
+      border: 22px solid #c9c3b6;
+
+      border-radius: 28px;
+
+      box-shadow:
+        0 7px 0 #8c877d,
+        0 18px 35px rgba(0, 0, 0, 0.65),
+
+        inset 0 0 35px rgba(0, 0, 0, 0.9),
+        inset 0 0 8px rgba(110, 220, 120, 0.25);
+
+      position: relative;
+
+      overflow: hidden;
+    }
+
+
+    /* Inner CRT glass edge */
+
+    .clickerWindow::before {
+      content: "";
+
+      position: absolute;
+
+      inset: 7px;
+
+      border: 2px solid rgba(150, 145, 135, 0.35);
+
+      border-radius: 17px;
+
+      pointer-events: none;
+
+      box-shadow:
+        inset 0 0 20px rgba(0, 0, 0, 0.75);
+    }
+
+
+    /* Keep game content above the CRT edge */
+
+    .clickerWindow > * {
+      position: relative;
+      z-index: 1;
+    }
+
+  /* =========================================================
+    ESCALATING CRT GLITCH EFFECTS
+    These effects stay inside the monitor's screen area.
+    ========================================================= */
+
+  .clickerWindow {
+    --glitch-color: #8ee091;
+  }
+
+  /* Screen flicker and scanline overlay */
+  .clickerWindow::after {
+    content: "";
+    position: absolute;
+    inset: 22px;
+    border-radius: 8px;
+    pointer-events: none;
+    z-index: 2;
+    opacity: 0;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0px,
+      transparent 3px,
+      rgba(0, 0, 0, 0.22) 4px
+    );
+  }
+
+  /* STAGE 1: INSTABILITY */
+  .clickerWindow.glitchStage1::after {
+    opacity: 0.25;
+    animation: glitchFlicker1 0.8s steps(2, end) infinite;
+  }
+
+  .clickerWindow.glitchStage1 .systemStatus {
+    color: #ffe66d;
+    animation: warningPulse1 1s ease-in-out infinite;
+  }
+
+  /* STAGE 2: CRITICAL FAILURE */
+  .clickerWindow.glitchStage2::after {
+    opacity: 0.55;
+    background:
+      repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 3px,
+        rgba(0, 0, 0, 0.35) 4px
+      ),
+      linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 0, 0, 0.12) 50%,
+        transparent 100%
+      );
+    animation: glitchFlicker2 0.35s steps(2, end) infinite;
+  }
+
+  .clickerWindow.glitchStage2 .systemStatus {
+    color: #ff5656;
+    text-shadow: 2px 0 #ff0000, -2px 0 #00ffff;
+    animation: warningPulse2 0.45s steps(2, end) infinite;
+  }
+
+  /* STAGE 3: SYSTEM OVERLOAD */
+  .clickerWindow.glitchStage3::after {
+    opacity: 0.8;
+    background:
+      repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        rgba(255, 0, 0, 0.12) 2px,
+        transparent 4px,
+        rgba(0, 255, 255, 0.12) 6px
+      );
+    animation: glitchFlicker3 0.18s steps(2, end) infinite;
+  }
+
+  .clickerWindow.glitchStage3 .systemStatus {
+    color: #ff3333;
+    text-shadow: 3px 0 #ff0000, -3px 0 #00ffff;
+    animation: warningPulse3 0.25s steps(2, end) infinite;
+  }
+
+  .clickerWindow.glitchStage3 h1 {
+    animation: titleDistortion 0.3s steps(2, end) infinite;
+  }
+
+  /* Animations */
+  @keyframes glitchFlicker1 {
+    0%, 100% { opacity: 0.12; }
+    50% { opacity: 0.35; }
+  }
+
+  @keyframes glitchFlicker2 {
+    0%, 100% { opacity: 0.25; }
+    25% { opacity: 0.75; }
+    50% { opacity: 0.4; }
+    75% { opacity: 0.9; }
+  }
+
+  @keyframes glitchFlicker3 {
+    0%, 100% { opacity: 0.45; }
+    20% { opacity: 0.95; }
+    40% { opacity: 0.3; }
+    60% { opacity: 0.85; }
+    80% { opacity: 0.55; }
+  }
+
+  @keyframes warningPulse1 {
+    50% { text-shadow: 0 0 8px #ffe66d; }
+  }
+
+  @keyframes warningPulse2 {
+    50% { text-shadow: 3px 0 red, -3px 0 cyan, 0 0 12px red; }
+  }
+
+  @keyframes warningPulse3 {
+    50% { text-shadow: 4px 0 red, -4px 0 cyan, 0 0 18px red; }
+  }
+
+  @keyframes titleDistortion {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(2px); }
+    50% { transform: translateX(-2px); }
+    75% { transform: translateX(1px); }
+  }
+
+
+    /* =========================================================
+       CLICKER.EXE WEBSITE LANDING PAGE
+       The original CRT game and shop styles above remain intact.
+       ========================================================= */
+    .clickerAppRoot { min-height: 100vh; }
+    .landingShell { max-width: 1120px; margin: 0 auto; padding: 10px 24px 24px; color: #c3efc6; font-family: monospace; }
+    .landingTopBar { display: flex; align-items: center; gap: 13px; border-bottom: 1px solid #345339; padding: 8px 0 18px; }
+    .landingBrandMark { width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; border: 2px solid #75bd7c; background: #132215; color: #a5f0ac; font-size: 27px; }
+    .landingBrand { letter-spacing: 3px; font-size: 22px; font-weight: bold; color: #a5f0ac; }
+    .landingSubBrand { margin-top: 4px; font-size: 10px; letter-spacing: 2px; opacity: .65; }
+    .landingTopActions { margin-left: auto; }
+    .landingSettingsButton, .landingFooter button, .landingFooter a, .gameFooter button { border: 1px solid #4e7e52; background: #131e14; color: #a5f0ac; padding: 10px 12px; font-family: monospace; letter-spacing: 1px; font-size: 11px; text-decoration: none; cursor: pointer; }
+    .landingSettingsButton:hover, .landingFooter button:hover, .landingFooter a:hover, .gameFooter button:hover { background: #1d3220; }
+    .landingMain { padding: 52px 0 22px; }
+    .landingEyebrow { margin: 0 auto 10px; max-width: 760px; color: #79a87f; font-size: 11px; letter-spacing: 2px; }
+    .landingScreen { position: relative; overflow: hidden; max-width: 760px; margin: 0 auto; padding: 32px 38px 30px; border: 2px solid #47664b; border-radius: 4px; background: radial-gradient(ellipse at center, #102010 0%, #071007 68%, #040804 100%); box-shadow: 0 18px 45px rgba(0,0,0,.42), inset 0 0 24px rgba(110,220,120,.08); }
+    .landingScreen::after { content: ""; pointer-events: none; position: absolute; inset: 0; background: repeating-linear-gradient(to bottom, transparent 0, transparent 3px, rgba(0,0,0,.12) 4px); opacity: .75; }
+    .landingScreenHeader { display: flex; justify-content: space-between; gap: 10px; color: #779f7b; font-size: 10px; letter-spacing: 1.3px; }
+    .landingScreen h1 { color: #a5f0ac; font-family: monospace; font-size: clamp(34px, 6vw, 58px); letter-spacing: 7px; margin: 44px 0 7px; text-shadow: 0 0 15px rgba(106,255,124,.18); }
+    .landingTagline { margin: 0 0 36px; font-size: 14px; color: #77ab7d; }
+    .bootLog { color: #72a879; font-size: 12px; line-height: 2.05; text-align: left; border-left: 2px solid #385a3c; padding-left: 16px; margin-bottom: 28px; }
+    .bootLastLine { color: #b7f8bd; }
+    .landingProgressLabel { display: flex; justify-content: space-between; font-size: 10px; color: #7cab81; margin-bottom: 8px; letter-spacing: 1px; }
+    .landingProgress { height: 13px; border: 1px solid #527457; background: #030703; overflow: hidden; }
+    .landingProgressFill { width: 100%; height: 100%; background: repeating-linear-gradient(90deg,#468b4c 0,#468b4c 10px,#74bd78 10px,#74bd78 20px); position: relative; }
+    .landingProgressFill::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg,transparent,rgba(220,255,220,.28),transparent); animation: loadingSweep 1.7s linear infinite; }
+    .launchGameButton { position: relative; z-index: 1; display: block; width: 100%; margin-top: 26px; padding: 17px; border: 2px solid #87d88e; background: #a5f0ac; color: #081008; font-family: monospace; font-size: 16px; font-weight: bold; letter-spacing: 3px; cursor: pointer; box-shadow: 0 4px 0 #47744c; }
+    .launchGameButton:hover { background: #c4ffca; transform: translateY(-1px); }
+    .landingNote { color: #638767; font-size: 10px; margin: 18px 0 0; }
+    .landingFeatureRow { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 22px; max-width: 760px; margin: 28px auto 0; }
+    .landingFeatureRow div { border-top: 1px solid #345339; padding-top: 12px; }
+    .landingFeatureRow strong { display: block; color: #9edaa4; font-size: 11px; letter-spacing: 1px; margin-bottom: 7px; }
+    .landingFeatureRow span { display: block; color: #6f9874; font-size: 11px; line-height: 1.6; }
+    .landingFooter { display: flex; align-items: center; justify-content: space-between; gap: 12px; border-top: 1px solid #345339; padding-top: 18px; margin-top: 38px; font-size: 10px; color: #5b805f; }
+    .landingFooter div { display: flex; flex-wrap: wrap; gap: 7px; }
+    .landingFooter button, .landingFooter a { font-size: 10px; padding: 8px 10px; }
+    .landingBuildInfo { text-align: center; color: #46674b; font-size: 10px; margin-top: 14px; letter-spacing: 1px; }
+
+    /* Shared Master Settings */
+    .settingsTabsWrap { flex-wrap: wrap; }
+    .settingsTabsWrap .settingsTabButton { min-width: 125px; }
+    .settingRow, .dataAction { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 14px 12px; border: 1px solid #a39d91; border-radius: 6px; margin: 10px 0; background: rgba(255,255,255,.13); }
+    .settingRow strong, .dataAction strong { display: block; font-family: monospace; font-size: 13px; }
+    .settingHelp { margin-top: 5px; max-width: 390px; font-size: 12px; line-height: 1.4; color: #48453f; }
+    .toggleLabel { flex-shrink: 0; display: flex; align-items: center; gap: 7px; font-family: monospace; font-weight: bold; font-size: 11px; }
+    .toggleLabel input { width: 18px; height: 18px; accent-color: #417a46; }
+    .settingValue { color: #37683c; font: bold 11px monospace; }
+    .settingStats { font: 11px monospace; line-height: 1.6; background: #20201c; color: #8ee091; padding: 12px; margin-top: 15px; }
+    .rangeSetting { margin: 17px 0; padding: 12px; border: 1px solid #a39d91; border-radius: 6px; background: rgba(255,255,255,.13); }
+    .rangeSetting label { display: block; margin-bottom: 12px; font: bold 12px monospace; }
+    .rangeSetting input { width: 100%; accent-color: #477b4a; }
+    .dataAction { align-items: flex-start; }
+    .dataAction p { font-size: 12px; line-height: 1.45; margin-bottom: 0; color: #49463f; }
+    .dataActionButton { flex-shrink: 0; background: #20201c; color: #9fe6a5; border: 2px solid #555; padding: 10px; font: bold 11px monospace; cursor: pointer; }
+    .dangerButton { background: #472626; color: #fff; border-color: #995252; }
+    .powerUpBuyButton { width: 100%; margin-top: 10px; padding: 9px; border: 2px solid #777; border-radius: 5px; background: #d4cec0; color: #20201c; font-family: monospace; font-weight: bold; cursor: pointer; }
+    .powerUpBuyButton:hover:not(:disabled) { background: #f0eadb; }
+    .powerUpBuyButton:disabled { opacity: .45; cursor: default; }
+    .legalWindow { line-height: 1.55; }
+    .legalWindow h3 { margin-top: 18px; font-family: monospace; font-size: 14px; }
+    .legalWindow p { font-size: 13px; }
+    .legalWindow a, .settingsWindow a { color: #244e28; font-weight: bold; }
+    .legalFooter { margin-top: 20px; display: flex; justify-content: flex-end; }
+    .landingSecondaryButton { background: #20201c; color: #8ee091; border: 1px solid #666; padding: 10px 14px; font-family: monospace; cursor: pointer; }
+    .warningWindow { max-width: 650px; line-height: 1.55; }
+    .warningWindow p { font-size: 14px; }
+
+    /* Glitch timer, recovery, rebirth, and save feedback */
+    .systemStatus { margin: -12px auto 24px; color: #8ee091; font: 12px monospace; letter-spacing: 1px; line-height: 1.5; }
+    .glitchCountdown { display: flex; align-items: center; justify-content: space-between; gap: 12px; max-width: 550px; margin: -10px auto 25px; border: 1px solid #7b3434; color: #ffb4b4; background: rgba(60,0,0,.28); padding: 9px 13px; font: 11px monospace; letter-spacing: 1px; }
+    .glitchCountdown strong { color: #ff5b5b; font-size: 19px; }
+    .clickerWindow.glitchWarning::after { opacity: .24; animation: warningScreenBlink 1.8s steps(2,end) infinite; }
+    @keyframes warningScreenBlink { 0%,100% { opacity: .08; } 50% { opacity: .28; } }
+    .clickerWindow.glitchWarning .systemStatus { color: #ffe66d; text-shadow: 0 0 8px rgba(255,230,109,.5); }
+    .clickerWindow.reducedFlashing::after, .clickerWindow.reducedFlashing.glitchWarning::after, .clickerWindow.reducedFlashing.glitchStage1::after, .clickerWindow.reducedFlashing.glitchStage2::after, .clickerWindow.reducedFlashing.glitchStage3::after { opacity: .08 !important; animation: none !important; }
+    .clickerWindow.reducedFlashing .systemStatus, .clickerWindow.reducedFlashing h1 { animation: none !important; text-shadow: none !important; }
+    .landingShell.reducedFlashing .landingScreen::after, .landingShell.reducedFlashing .landingProgressFill::after { animation: none !important; opacity: .12 !important; }
+    .clickerWindow > .settingsButton { position: absolute; z-index: 20; }
+    .homeButton { position: absolute !important; top: 18px; left: 19px; z-index: 30 !important; padding: 8px 10px; border: 1px solid #627864; background: #172317; color: #8ee091; font: bold 10px monospace; cursor: pointer; }
+    .lifetimeLoadNote { display: inline-block; margin-left: 12px; opacity: .6; font: 10px monospace; }
+    .rebirthBar { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 12px; margin: 13px auto 0; color: #8ee091; font: 11px monospace; letter-spacing: 1px; }
+    .rebirthButton { border: 1px solid #8ee091; background: #162918; color: #b5f9bb; padding: 9px 13px; font: bold 11px monospace; cursor: pointer; }
+    .rebirthButton:hover { background: #24462a; }
+    .patchArmedNotice { max-width: 590px; margin: 13px auto -15px; padding: 8px; border: 1px solid #71ad76; color: #b2f7b8; background: rgba(20,70,25,.35); font: 11px monospace; }
+    .rebirthOverlay { position: fixed; z-index: 90; inset: 0; display: flex; align-items: center; justify-content: center; padding: 20px; background: rgba(0,0,0,.76); }
+    .rebirthDialog { max-width: 500px; width: 100%; background: #c9c3b6; color: #20201c; border: 6px solid #8c877d; border-radius: 10px; padding: 25px; box-shadow: 0 15px 50px rgba(0,0,0,.6); text-align: left; }
+    .rebirthKicker { color: #47784b; font: bold 10px monospace; letter-spacing: 2px; }
+    .rebirthDialog h2 { margin: 12px 0; font: bold 23px monospace; letter-spacing: 2px; }
+    .rebirthDialog p { line-height: 1.55; font-size: 13px; }
+    .rebirthRequirement { font: 11px monospace !important; color: #4c684e; }
+    .rebirthDialogActions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+    .rebirthConfirmButton, .rebirthLaterButton { flex: 1; min-width: 130px; padding: 12px; font: bold 11px monospace; border: 2px solid #666; cursor: pointer; }
+    .rebirthConfirmButton { background: #20201c; color: #8ee091; }
+    .rebirthLaterButton { background: #b4aea2; color: #20201c; }
+    .achievementToast { position: fixed; z-index: 120; bottom: 22px; left: 50%; transform: translateX(-50%); max-width: calc(100vw - 30px); background: #112114; color: #b2f7b8; border: 1px solid #75bd7c; box-shadow: 0 6px 24px rgba(0,0,0,.45); padding: 13px 18px; text-align: center; font: bold 11px monospace; letter-spacing: 1px; animation: toastArrival .25s ease-out both; }
+    @keyframes toastArrival { from { transform: translate(-50%, 12px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+    .gameFooter { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-top: 20px; color: #628566; font: 9px monospace; }
+    .particleLayer { position: absolute; inset: 0; z-index: 5; pointer-events: none; overflow: hidden; }
+    .greenParticle { position: absolute; width: 6px; height: 6px; background: #8ee091; box-shadow: 0 0 7px rgba(142,224,145,.8); opacity: .95; animation: particleBase .78s ease-out forwards; }
+    .particleDirection0 { animation-name: particle0; } .particleDirection1 { animation-name: particle1; } .particleDirection2 { animation-name: particle2; } .particleDirection3 { animation-name: particle3; } .particleDirection4 { animation-name: particle4; } .particleDirection5 { animation-name: particle5; } .particleDirection6 { animation-name: particle6; } .particleDirection7 { animation-name: particle7; }
+    @keyframes particleBase { to { opacity: 0; transform: scale(.05); } }
+    @keyframes particle0 { to { opacity: 0; transform: translate(-40px,-48px) scale(.05); } }
+    @keyframes particle1 { to { opacity: 0; transform: translate(0,-62px) scale(.05); } }
+    @keyframes particle2 { to { opacity: 0; transform: translate(42px,-45px) scale(.05); } }
+    @keyframes particle3 { to { opacity: 0; transform: translate(55px,0) scale(.05); } }
+    @keyframes particle4 { to { opacity: 0; transform: translate(40px,45px) scale(.05); } }
+    @keyframes particle5 { to { opacity: 0; transform: translate(0,60px) scale(.05); } }
+    @keyframes particle6 { to { opacity: 0; transform: translate(-42px,45px) scale(.05); } }
+    @keyframes particle7 { to { opacity: 0; transform: translate(-55px,0) scale(.05); } }
+    .mainClickButton.clicked { animation: mouseClickPulse .14s ease-out; }
+    @keyframes mouseClickPulse { 0% { transform: translateY(0) scale(1); } 45% { transform: translateY(7px) scale(.97); } 100% { transform: translateY(0) scale(1); } }
+
+
+    .rareAchievementToast { color: #fff2ae; border-color: #e3c66c; background: #28200e; box-shadow: 0 0 28px rgba(227,198,108,.25), 0 6px 24px rgba(0,0,0,.5); letter-spacing: 1.5px; }
+    .rareAchievementToast::before { content: "★ SECRET / RARE UNLOCK ★"; display: block; margin-bottom: 6px; color: #e3c66c; font-size: 9px; }
+
+    @media (max-width: 720px) {
+      body { padding: 18px 8px; }
+      .landingShell { padding: 2px 5px 15px; }
+      .landingTopBar { align-items: flex-start; flex-wrap: wrap; }
+      .landingBrand { font-size: 18px; }
+      .landingTopActions { width: 100%; margin-left: 0; }
+      .landingSettingsButton { width: 100%; }
+      .landingMain { padding-top: 26px; }
+      .landingScreen { padding: 22px 16px; }
+      .landingScreen h1 { letter-spacing: 3px; margin-top: 31px; }
+      .landingScreenHeader { font-size: 8px; }
+      .bootLog { font-size: 10px; padding-left: 9px; }
+      .landingFeatureRow { grid-template-columns: 1fr; gap: 11px; }
+      .landingFooter { align-items: flex-start; flex-direction: column; }
+      .landingFooter div { width: 100%; }
+      .landingFooter button, .landingFooter a { flex: 1; text-align: center; }
+      .clickerWindow { width: 100%; padding: 43px 15px 25px; border-width: 12px; border-radius: 20px; }
+      .settingsButton { top: 9px; right: 9px; }
+      .homeButton { top: 11px; left: 10px; }
+      .settingsWindow { max-height: 90vh; width: 96vw; padding: 18px; }
+      .settingRow, .dataAction { align-items: flex-start; flex-direction: column; }
+      .dataActionButton { width: 100%; }
+      .glitchCountdown { font-size: 9px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .landingScreen::after, .landingProgressFill::after, .loadingFill::after, .mainClickButton.clicked, .achievementToast { animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
+    }
+
+  </style>
+
 </head>
 
 <body>
+
   <div id="content"></div>
+
   <script src="bundle.js"></script>
 
-  <hr>
-  <p align="center"><a href="https://github.com/Elucidation/ClickerJs">View on Github</a></p>
-  <script>
-    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-  
-    ga('create', 'UA-47993702-2', 'auto');
-    ga('send', 'pageview');
-  
-  </script>
 </body>
 
 </html>
